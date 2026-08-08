@@ -69,6 +69,6 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish the artifact to be used as a source for a Build pipeline.'
   inputs:
-    targetPath: '$(Build.Repository.LocalPath)/ArmTemplate'
+    PathtoPublish: '$(Build.Repository.LocalPath)/ArmTemplate'
     ArtifactName: 'adf_artifact'
     publishLocation: 'Container'
