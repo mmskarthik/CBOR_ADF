@@ -99,8 +99,8 @@ jobs:
         run: |
           ./scripts/PrePostDeploymentScript.Ver2.ps1 `
             -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
-            -ResourceGroupName "${{ secrets.RG_NAME }}" `
-            -DataFactoryName "${{ secrets.ADF_NAME }}" `
+            -ResourceGroupName "${{ secrets.RG_DEV }}" `
+            -DataFactoryName "${{ secrets.ADF_DEV }}" `
             -predeployment $true `
             -deleteDeployment $false
 
@@ -109,7 +109,7 @@ jobs:
         with:
           scope: resourcegroup
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          resourceGroupName: ${{ secrets.RG_NAME }}
+          resourceGroupName: ${{ secrets.RG_DEV }}
           template: ExportedArmTemplate/ARMTemplateForFactory.json
           parameters: ExportedArmTemplate/ARMTemplateParametersForFactory.json
 
@@ -118,7 +118,7 @@ jobs:
         run: |
           ./scripts/PrePostDeploymentScript.Ver2.ps1 `
             -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
-            -ResourceGroupName "${{ secrets.RG_NAME }}" `
-            -DataFactoryName "${{ secrets.ADF_NAME }}" `
+            -ResourceGroupName "${{ secrets.RG_DEV }}" `
+            -DataFactoryName "${{ secrets.ADF_DEV }}" `
             -predeployment $false `
             -deleteDeployment $true
