@@ -3,21 +3,64 @@ name: Deploy ADF
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   deploy-dev:
+
     runs-on: ubuntu-latest
+
     environment: DEV
 
     steps:
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: adf-arm
+    - name: Find latest successful build
+      id: latest
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        RUN_ID=$(gh run list \
+          --workflow "ADF Build" \
+          --status success \
+          --limit 1 \
+          --json databaseId \
+          --jq '.[0].databaseId')
+
+        if [ -z "$RUN_ID" ]; then
+          echo "No successful ADF Build workflow found."
+          exit 1
+        fi
+
+        echo "Latest successful build: $RUN_ID"
+        echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+
+    - name: Download latest artifact
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh run download \
+          ${{ steps.latest.outputs.run_id }} \
+          --name adf-arm \
+          --dir .
+
+    - name: Verify downloaded artifact
+      run: |
+        echo "Current directory:"
+        pwd
+
+        echo ""
+        echo "Downloaded files:"
+        ls -R
 
     - name: Azure Login
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Verify Azure Login
+      run: az account show
 
     - name: Pre Deployment
       shell: pwsh
