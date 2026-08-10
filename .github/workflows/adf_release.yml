@@ -1,0 +1,49 @@
+name: Deploy ADF
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: DEV
+
+    steps:
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: adf-arm
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Pre Deployment
+      shell: pwsh
+      run: |
+        ./ExportedArmTemplate/PrePostDeploymentScript.Ver2.ps1 `
+          -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
+          -ResourceGroupName "${{ secrets.RG_DEV }}" `
+          -DataFactoryName "${{ secrets.ADF_DEV }}" `
+          -predeployment $true `
+          -deleteDeployment $false
+
+    - name: Deploy ARM Template
+      uses: azure/arm-deploy@v2
+      with:
+        scope: resourcegroup
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ secrets.RG_DEV }}
+        template: ExportedArmTemplate/ARMTemplateForFactory.json
+        parameters: ExportedArmTemplate/ARMTemplateParametersForFactory.json
+
+    - name: Post Deployment
+      shell: pwsh
+      run: |
+        ./ExportedArmTemplate/PrePostDeploymentScript.Ver2.ps1 `
+          -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
+          -ResourceGroupName "${{ secrets.RG_DEV }}" `
+          -DataFactoryName "${{ secrets.ADF_DEV }}" `
+          -predeployment $false `
+          -deleteDeployment $true
