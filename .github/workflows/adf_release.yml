@@ -92,12 +92,12 @@ jobs:
       - name: Run Pre Deployment Script
         shell: pwsh
         run: |
-          ./scripts/PrePostDeploymentScript.Ver2.ps1 `
+          ./ExportedArmTemplate/PrePostDeploymentScript.Ver2.ps1 `
             -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
             -ResourceGroupName "${{ secrets.RG_NAME }}" `
             -DataFactoryName "${{ secrets.ADF_NAME }}" `
             -predeployment $true `
-            -deleteDeployment $false
+            -deleteDeployment $falsee
 
       - name: Deploy ARM Template
         uses: azure/arm-deploy@v2
