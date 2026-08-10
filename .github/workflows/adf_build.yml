@@ -18,7 +18,7 @@ jobs:
         node-version: 20
 
     - name: Install packages
-      working-directory: ./build
+      working-directory: .
       run: npm install
 
     - name: Validate ADF
@@ -28,7 +28,7 @@ jobs:
         /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }}
 
     - name: Generate ARM
-      working-directory: ./build
+      working-directory: .
       run: |
         npm run build export ../ \
         /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} \
