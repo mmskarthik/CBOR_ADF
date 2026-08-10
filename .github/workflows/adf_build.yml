@@ -20,18 +20,28 @@ jobs:
     - name: Install packages
       run: npm install
 
+    # Login to Azure using the Service Principal stored in GitHub Secrets
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Optional: Verify the login
+    - name: Verify Azure Login
+      run: az account show
+
     - name: Validate ADF
       run: |
-        npm run build validate ../ \
+        npm run build validate . \
         /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }}
 
     - name: Generate ARM
       run: |
-        npm run build export ../ \
+        npm run build export . \
         /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} \
         ExportedArmTemplate
 
     - uses: actions/upload-artifact@v4
       with:
         name: adf-arm
-        path: build/ExportedArmTemplate
+        path: ExportedArmTemplate
