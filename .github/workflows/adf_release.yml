@@ -92,7 +92,7 @@ jobs:
       - name: Run Pre Deployment Script
         shell: pwsh
         run: |
-          ./ExportedArmTemplate/PrePostDeploymentScript.Ver2.ps1 `
+          ./scripts/PrePostDeploymentScript.Ver2.ps1 `
             -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
             -ResourceGroupName "${{ secrets.RG_NAME }}" `
             -DataFactoryName "${{ secrets.ADF_NAME }}" `
