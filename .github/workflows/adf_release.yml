@@ -71,6 +71,9 @@ jobs:
 
     steps:
 
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
       - name: Download ARM Artifact
         uses: actions/download-artifact@v4
         with:
@@ -78,8 +81,10 @@ jobs:
           path: ExportedArmTemplate
 
       - name: Verify Download
+        shell: pwsh
         run: |
-          ls -R ExportedArmTemplate
+          Write-Host "Repository structure:"
+          Get-ChildItem -Recurse
 
       - name: Azure Login
         uses: azure/login@v2
@@ -92,12 +97,12 @@ jobs:
       - name: Run Pre Deployment Script
         shell: pwsh
         run: |
-          ./ExportedArmTemplate/PrePostDeploymentScript.Ver2.ps1 `
+          ./scripts/PrePostDeploymentScript.Ver2.ps1 `
             -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
             -ResourceGroupName "${{ secrets.RG_NAME }}" `
             -DataFactoryName "${{ secrets.ADF_NAME }}" `
             -predeployment $true `
-            -deleteDeployment $falsee
+            -deleteDeployment $false
 
       - name: Deploy ARM Template
         uses: azure/arm-deploy@v2
@@ -111,7 +116,7 @@ jobs:
       - name: Run Post Deployment Script
         shell: pwsh
         run: |
-          ./ExportedArmTemplate/PrePostDeploymentScript.Ver2.ps1 `
+          ./scripts/PrePostDeploymentScript.Ver2.ps1 `
             -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
             -ResourceGroupName "${{ secrets.RG_NAME }}" `
             -DataFactoryName "${{ secrets.ADF_NAME }}" `
