@@ -1,51 +1,61 @@
 name: ADF Build
 
-# on:
-#   push:
-#     branches:
-#       - main
 on:
   workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v5
 
-    - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
 
-    - uses: actions/setup-node@v5
-      with:
-        node-version: 22
+      - name: Install packages
+        run: npm install
 
-    - name: Install packages
-      run: npm install
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Login to Azure using the Service Principal stored in GitHub Secrets
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Verify Azure Login
+        run: az account show
 
-    # Optional: Verify the login
-    - name: Verify Azure Login
-      run: az account show
+      - name: Validate ADF
+        run: |
+          npm run build validate \
+          ${{ github.workspace }}/adf \
+          /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }}
 
-    - name: Validate ADF
-      run: npm run build validate ${{github.workspace}}/adf/ /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} # (2) The validate command needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance 
-      # run: |
-      #   npm run build validate . \
-      #   /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }}
+      - name: Generate ARM
+        run: |
+          npm run build export \
+          ${{ github.workspace }}/adf \
+          /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} \
+          ExportedArmTemplate
 
-    - name: Generate ARM
-      run: npm run build export ${{github.workspace}}/adf/ /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} "ExportedArmTemplate"  # (3) The build command, as validate, needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance. The 3rd parameter is the exported ARM template artifact name 
-      # run: |
-      #   npm run build export . \
-      #   /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} \
-      #   ExportedArmTemplate
+      - name: Verify exported files
+        run: |
+          echo "Workspace:"
+          pwd
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: adf-arm
-        path: ExportedArmTemplate
+          echo ""
+          echo "Exported files:"
+          ls -R ExportedArmTemplate
+
+      - name: Upload ARM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: adf-arm
+          path: ExportedArmTemplate
+          retention-days: 30
