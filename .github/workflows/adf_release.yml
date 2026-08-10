@@ -40,17 +40,10 @@ jobs:
         run: az account show
 
       - name: Validate ADF
-        run: |
-          npm run build validate \
-          ${{ github.workspace }}/adf \
-          /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_NAME }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_NAME }}
+        run: npm run build validate ${{github.workspace}}/adf/ /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} # (2) The validate command needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance 
 
       - name: Generate ARM Template
-        run: |
-          npm run build export \
-          ${{ github.workspace }}/adf \
-          /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_NAME }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_NAME }} \
-          ExportedArmTemplate
+        run: npm run build export ${{github.workspace}}/adf/ /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} "ExportedArmTemplate"  # (3) The build command, as validate, needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance. The 3rd parameter is the exported ARM template artifact name 
 
       - name: Verify ARM Template
         run: |
