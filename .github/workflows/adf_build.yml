@@ -1,0 +1,40 @@
+name: ADF Build
+
+on:
+  push:
+    branches:
+      - none
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install packages
+      working-directory: ./build
+      run: npm install
+
+    - name: Validate ADF
+      working-directory: ./build
+      run: |
+        npm run build validate ../ \
+        /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }}
+
+    - name: Generate ARM
+      working-directory: ./build
+      run: |
+        npm run build export ../ \
+        /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RG_DEV }}/providers/Microsoft.DataFactory/factories/${{ secrets.ADF_DEV }} \
+        ExportedArmTemplate
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: adf-arm
+        path: build/ExportedArmTemplate
