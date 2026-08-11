@@ -49,12 +49,16 @@ jobs:
         run: |
           ls -R ExportedArmTemplate
 
+      - name: Zip ARM Template
+        run: |
+          zip -r ExportedArmTemplate.zip ExportedArmTemplate
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: adf-${{ github.run_number }}
           name: ADF Release ${{ github.run_number }}
-          files: ExportedArmTemplate/**
+          files: ExportedArmTemplate.zip
           
       - name: Upload ARM Artifact
         uses: actions/upload-artifact@v4
