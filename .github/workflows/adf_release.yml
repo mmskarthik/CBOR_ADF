@@ -100,15 +100,6 @@ jobs:
         with:
           inlineScript: ./scripts/PrePostDeploymentScript.Ver2.ps1 -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" -armTemplateParameters "./ExportedArmTemplate/ARMTemplateParametersForFactory.json" -ResourceGroupName "${{ secrets.RG_DEV }}" -DataFactoryName "${{ secrets.ADF_DEV }}" -predeployment $true -deleteDeployment $false
           azPSVersion: latest
-          # errorActionPreference: Stop
-          # failOnStandardError: true
-          # arguments: >
-          #   -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json"
-          #   -armTemplateParameters "./ExportedArmTemplate/ARMTemplateParametersForFactory.json"
-          #   -ResourceGroupName "${{ secrets.RG_DEV }}"
-          #   -DataFactoryName "${{ secrets.ADF_DEV }}"
-          #   -predeployment $true
-          #   -deleteDeployment $false
 
       - name: Deploy ARM Template
         uses: azure/arm-deploy@v2
@@ -118,13 +109,9 @@ jobs:
           resourceGroupName: ${{ secrets.RG_DEV }}
           template: ExportedArmTemplate/ARMTemplateForFactory.json
           parameters: ExportedArmTemplate/ARMTemplateParametersForFactory.json
-
+          
       - name: Run Post Deployment Script
-        shell: pwsh
-        run: |
-          ./scripts/PrePostDeploymentScript.Ver2.ps1 `
-            -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
-            -ResourceGroupName "${{ secrets.RG_DEV }}" `
-            -DataFactoryName "${{ secrets.ADF_DEV }}" `
-            -predeployment $false `
-            -deleteDeployment $true
+        uses: azure/powershell@v3
+        with:
+          inlineScript: ./scripts/PrePostDeploymentScript.Ver2.ps1 -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" -armTemplateParameters "./ExportedArmTemplate/ARMTemplateParametersForFactory.json" -ResourceGroupName "${{ secrets.RG_DEV }}" -DataFactoryName "${{ secrets.ADF_DEV }}" -predeployment $false -deleteDeployment $true
+          azPSVersion: latest
