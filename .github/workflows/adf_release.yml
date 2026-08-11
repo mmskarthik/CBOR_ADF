@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
 
@@ -49,6 +49,13 @@ jobs:
         run: |
           ls -R ExportedArmTemplate
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: adf-${{ github.run_number }}
+          name: ADF Release ${{ github.run_number }}
+          files: ExportedArmTemplate/**
+          
       - name: Upload ARM Artifact
         uses: actions/upload-artifact@v4
         with:
