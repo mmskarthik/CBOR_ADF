@@ -94,34 +94,35 @@ jobs:
 
       - name: Verify Azure Login
         run: az account show
-
-      # - name: Run Pre Deployment Script
-      #   uses: azure/powershell@v2
-      #   with:
-      #     azPSVersion: latest
-      #     inlineScript: |
-      #       ./scripts/PrePostDeploymentScript.Ver2.ps1 `
-      #         -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json" `
-      #         -armTemplateParameters "./ExportedArmTemplate/ARMTemplateParametersForFactory.json" `
-      #         -ResourceGroupName "${{ secrets.RG_DEV }}" `
-      #         -DataFactoryName "${{ secrets.ADF_DEV }}" `
-      #         -predeployment $true `
-      #         -deleteDeployment $false
-              
+        
       - name: Run Pre Deployment Script
         uses: azure/powershell@v2
         with:
           azPSVersion: latest
           scriptPath: ./scripts/PrePostDeploymentScript.Ver2.ps1
-          inlineScript: ""
           errorActionPreference: Stop
           failOnStandardError: true
           arguments: >
-            -armTemplate "./adf_artifact/ARMTemplateForFactory.json"
+            -armTemplate "./ExportedArmTemplate/ARMTemplateForFactory.json"
+            -armTemplateParameters "./ExportedArmTemplate/ARMTemplateParametersForFactory.json"
             -ResourceGroupName "${{ secrets.RG_DEV }}"
             -DataFactoryName "${{ secrets.ADF_DEV }}"
             -predeployment $true
             -deleteDeployment $false
+      # - name: Run Pre Deployment Script
+      #   uses: azure/powershell@v2
+      #   with:
+      #     azPSVersion: latest
+      #     scriptPath: ./scripts/PrePostDeploymentScript.Ver2.ps1
+      #     inlineScript: ""
+      #     errorActionPreference: Stop
+      #     failOnStandardError: true
+      #     arguments: >
+      #       -armTemplate "./adf_artifact/ARMTemplateForFactory.json"
+      #       -ResourceGroupName "${{ secrets.RG_DEV }}"
+      #       -DataFactoryName "${{ secrets.ADF_DEV }}"
+      #       -predeployment $true
+      #       -deleteDeployment $false
 
       - name: Deploy ARM Template
         uses: azure/arm-deploy@v2
